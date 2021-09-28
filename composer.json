@@ -9,6 +9,7 @@
   "require": {
     "laminas/laminas-config": "^3.5",
     "laminas/laminas-http": "^2.14",
-    "laminas/laminas-log": "^2.13"
+    "laminas/laminas-log": "^2.13",
+    "symfony/console": "^5.3"
   }
 }
