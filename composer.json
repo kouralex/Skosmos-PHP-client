@@ -1,0 +1,14 @@
+{
+  "name": "natlibfi/finto-php-client",
+  "description": "Finto PHP Client",
+  "autoload": {
+    "psr-4": {
+      "NatLibFi\\Finto\\PhpClient\\": "src/"
+    }
+  },
+  "require": {
+    "laminas/laminas-config": "^3.5",
+    "laminas/laminas-http": "^2.14",
+    "laminas/laminas-log": "^2.13"
+  }
+}
