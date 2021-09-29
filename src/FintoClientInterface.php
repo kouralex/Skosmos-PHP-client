@@ -36,4 +36,12 @@ interface FintoClientInterface extends FintoApiInterface
         ?array $other = null,
         bool $narrower = true
     ): array;
+
+    /**
+     * @param array $terms
+     * @param array $options
+     *
+     * @return array
+     */
+    public function getRecommendations(array $terms, array $options): array;
 }

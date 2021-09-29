@@ -296,6 +296,84 @@ class Finto implements FintoClientInterface, LoggerAwareInterface
         return $extendedResults;
     }
 
+    public function getRecommendations(array $terms, array $options): array
+    {
+        $recommendations = [];
+        $apiCallTotal = 0;
+        $recommendationTotal = 0;
+
+        // Process each term and make API calls if applicable.
+        foreach ($terms as $term) {
+            // Determine if the term can or should be searched for.
+            if (!($this->canMakeApiCalls($options, $apiCallTotal)
+                && $this->canAddRecommendation($options, $recommendationTotal))
+            ) {
+                break;
+            }
+
+            // Determine if narrower concepts should be looked for if applicable.
+            $narrower = ((null === $options['minLargeResultTotal']
+                    || $options['resultTotal'] >= $options['minLargeResultTotal']))
+                && $this->canMakeApiCalls($options, $apiCallTotal, 2);
+
+            // Make the Finto API call(s).
+            $fintoTerm = $term . '*';
+            while (false !== strpos($fintoTerm, '**')) {
+                $fintoTerm = str_replace('**', '*', $fintoTerm);
+            }
+            $fintoResults = $this->extendedSearch(
+                $fintoTerm,
+                $options['language'],
+                [],
+                $narrower
+            );
+            $apiCallTotal += 1;
+
+            // Continue to next term if no results or "other" results.
+            if (!$fintoResults
+                || Finto::TYPE_OTHER === $fintoResults[Finto::RESULT_TYPE]
+            ) {
+                continue;
+            }
+
+            // Process and add Finto results.
+            if (Finto::TYPE_HYPONYM === $fintoResults[Finto::RESULT_TYPE]) {
+                // Hyponym results have required an additional API call.
+                $apiCallTotal += 1;
+                // Get the URI of the searched term from the original results.
+                $termUri = $fintoResults[Finto::RESULTS]['results'][0]['uri'];
+                // Narrower results are used for hyponym recommendations.
+                foreach ($fintoResults[Finto::NARROWER_RESULTS] as $fintoResult) {
+                    if ($this->addOntologyResult(
+                        $recommendations,
+                        $term,
+                        $fintoResult,
+                        $fintoResults[Finto::RESULT_TYPE],
+                        $termUri
+                    )) {
+                        $recommendationTotal++;
+                    }
+                }
+            } else {
+                foreach ($fintoResults[Finto::RESULTS]['results'] as $fintoResult) {
+                    if ($this->addOntologyResult(
+                        $recommendations,
+                        $term,
+                        $fintoResult,
+                        $fintoResults[Finto::RESULT_TYPE]
+                    )) {
+                        $recommendationTotal ++;
+                    }
+                }
+            }
+        }
+
+        return [
+            'recommendations' => $recommendations,
+            'recommendationTotal' => $recommendationTotal
+        ];
+    }
+
     /**
      * Make Request.
      *
@@ -365,5 +443,64 @@ class Finto implements FintoClientInterface, LoggerAwareInterface
         }
 
         return $decodedResult;
+    }
+
+    /**
+     * Can more API calls be made.
+     *
+     * @param int $count Number of API calls needed, defaults to 1.
+     *
+     * @return bool
+     */
+    protected function canMakeApiCalls(array $options, int $apiCallTotal, int $count = 1): bool
+    {
+        return is_numeric($options['maxApiCalls'])
+            ? ($apiCallTotal + $count) <= $options['maxApiCalls']
+            : true;
+    }
+
+    /**
+     * Can another recommendation be added.
+     *
+     * @return bool
+     */
+    protected function canAddRecommendation(array $options, int $recommendationTotal): bool
+    {
+        return is_numeric($options['maxRecommendations'])
+            ? $recommendationTotal < $options['maxRecommendations']
+            : true;
+    }
+
+    /**
+     * Adds an ontology result to the recommendations array.
+     *
+     * @param string      $term        The term searched for
+     * @param array       $fintoResult Finto result
+     * @param string      $resultType  Result type
+     * @param string|null $termUri     URI of the searched term if applicable
+     *
+     * @return bool
+     */
+    protected function addOntologyResult(
+        array &$results,
+        string $term,
+        array $fintoResult,
+        string $resultType,
+        ?string $termUri = null
+    ): bool {
+        // Add result and increase counter if the result is for a new term.
+        $increaseCounter = false;
+        if (!isset($results[$resultType])) {
+            $results[$resultType] = [];
+        }
+        if (!isset($results[$resultType][$term])) {
+            $results[$resultType][$term] = [];
+            $increaseCounter = true;
+        }
+        $results[$resultType][$term][] = [
+            'result' => $fintoResult,
+            'termUri' => $termUri
+        ];
+        return $increaseCounter;
     }
 }
