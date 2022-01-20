@@ -1,9 +1,9 @@
-# Finto PHP Client
+# Skosmos PHP Client
 
 ## Quick start
 
 ```sh
 composer install
 
-./bin/console finto:search esimerkki
+./bin/console skosmos:search --service $REST_API_BASE_URL esimerkki
 ```

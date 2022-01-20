@@ -1,11 +1,115 @@
 #!/usr/bin/env php
 <?php
-
+/**
+ * Skosmos client console.
+ *
+ * PHP version 7.3
+ *
+ * Copyright (c) 2021-2022 University Of Helsinki (The National Library Of Finland)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @category Skosmos
+ * @package  Skosmos-PHP-client
+ * @author   Alex Kourijoki <alex.kourijoki@helsinki.fi>
+ * @author   Aleksi Peebles <aleksi.peebles@helsinki.fi>
+ * @license  https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License
+ * @link     http://skosmos.org/, https://github.com/NatLibFi/Skosmos, https://github.com/NatLibFi/Skosmos-PHP-Client
+ */
 require __DIR__ . '/../vendor/autoload.php';
 
-use NatLibFi\Finto\PhpClient\Command\SearchCommand;
+use NatLibFi\SkosmosClient\Command\DataCommand;
+use NatLibFi\SkosmosClient\Command\ExtendedSearchCommand;
+use NatLibFi\SkosmosClient\Command\LabelCommand;
+use NatLibFi\SkosmosClient\Command\SearchCommand;
+use NatLibFi\SkosmosClient\Command\TypesCommand;
+use NatLibFi\SkosmosClient\Command\VocabulariesCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyBroaderCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyBroaderTransitiveCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyChildrenCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyDataCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyGroupMembersCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyGroupsCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyHierarchyCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyIndexCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyIndexLetterCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyInformationCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyLabelCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyLabelStatisticsCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyLookupCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyMappingsCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyModifiedCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyNarrowerCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyNarrowerTransitiveCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyNewCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyRelatedCommand;
+use NatLibFi\SkosmosClient\Command\VocabularySearchCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyStatisticsCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyTopConceptsCommand;
+use NatLibFi\SkosmosClient\Command\VocabularyTypesCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application();
-$application->add(new SearchCommand());
+$application = new Application('Skosmos PHP client console tool', '0.1');
+
+// Global commands array.
+$globalCommands = [
+    new VocabulariesCommand(),
+    new SearchCommand(),
+    new LabelCommand(),
+    new DataCommand(),
+    new TypesCommand(),
+];
+
+// Vocabulary commands array.
+$vocabularyCommands = [
+    new VocabularyInformationCommand(),
+    new VocabularySearchCommand(),
+    new VocabularyTypesCommand(),
+    new VocabularyTopConceptsCommand(),
+    new VocabularyDataCommand(),
+    new VocabularyLookupCommand(),
+    new VocabularyStatisticsCommand(),
+    new VocabularyLabelStatisticsCommand(),
+    new VocabularyIndexCommand(),
+    new VocabularyIndexLetterCommand(),
+    new VocabularyGroupsCommand(),
+    new VocabularyNewCommand(),
+    new VocabularyModifiedCommand(),
+];
+
+// Concept commands array.
+$conceptCommands = [
+    new VocabularyLabelCommand(),
+    new VocabularyBroaderCommand(),
+    new VocabularyBroaderTransitiveCommand(),
+    new VocabularyNarrowerCommand(),
+    new VocabularyNarrowerTransitiveCommand(),
+    new VocabularyRelatedCommand(),
+    new VocabularyChildrenCommand(),
+    new VocabularyGroupMembersCommand(),
+    new VocabularyHierarchyCommand(),
+    new VocabularyMappingsCommand(),
+];
+
+// Add commands to application.
+$application->addCommands(
+    array_merge(
+        $globalCommands,
+        $vocabularyCommands,
+        $conceptCommands,
+    )
+);
+
+// Run the application.
 $application->run();

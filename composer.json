@@ -1,15 +1,25 @@
 {
-  "name": "natlibfi/finto-php-client",
-  "description": "Finto PHP Client",
+  "name": "natlibfi/skosmos-php-client",
+  "description": "Skosmos PHP Client",
   "autoload": {
     "psr-4": {
-      "NatLibFi\\Finto\\PhpClient\\": "src/"
+      "NatLibFi\\SkosmosClient\\": "src/",
+      "NatLibFi\\SkosmosClient\\Command\\": "src/Command/",
+      "NatLibFi\\SkosmosClient\\Contract\\": "src/Contract/"
     }
   },
   "require": {
+    "php": ">=7.3.31",
     "laminas/laminas-config": "^3.5",
     "laminas/laminas-http": "^2.14",
     "laminas/laminas-log": "^2.13",
-    "symfony/console": "^5.3"
+    "symfony/console": "^5.3",
+    "symfony/polyfill-php80": "1.*"
+  },
+  "require-dev": {
+    "symplify/easy-coding-standard": "^9.4",
+    "squizlabs/php_codesniffer": "^3.6",
+    "symplify/phpstan-rules": "^9.3",
+    "rector/rector": "^0.11.58"
   }
 }
