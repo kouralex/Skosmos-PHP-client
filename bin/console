@@ -30,7 +30,6 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use NatLibFi\SkosmosClient\Command\DataCommand;
-use NatLibFi\SkosmosClient\Command\ExtendedSearchCommand;
 use NatLibFi\SkosmosClient\Command\LabelCommand;
 use NatLibFi\SkosmosClient\Command\SearchCommand;
 use NatLibFi\SkosmosClient\Command\TypesCommand;
